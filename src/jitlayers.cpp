@@ -348,9 +348,9 @@ public:
 
     void addGlobalMapping(StringRef Name, uint64_t Addr)
     {
-       bool successful = GlobalSymbolTable.insert(make_pair(getMangledName(Name), (void*)Addr)).second;
-       (void)successful;
-       assert(successful);
+        bool successful = GlobalSymbolTable.insert(make_pair(getMangledName(Name), (void*)Addr)).second;
+        (void)successful;
+        assert(successful);
     }
 
     void *getPointerToGlobalIfAvailable(StringRef S)
