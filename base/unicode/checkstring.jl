@@ -56,7 +56,7 @@ Throws:
 """
 function unsafe_checkstring end
 
-function unsafe_checkstring(dat::Vector{UInt8},
+function unsafe_checkstring(dat::AbstractVector{UInt8},
                       pos = start(dat),
                       endpos = endof(dat)
                       ;
@@ -152,8 +152,10 @@ function unsafe_checkstring(dat::Vector{UInt8},
     return totalchar, flags, num4byte, num3byte, num2byte
 end
 
-function unsafe_checkstring{T <: Union{Vector{UInt16}, Vector{UInt32}, AbstractString}}(
-                      dat::T,
+typealias AbstractString1632{Tel<:Union{UInt16,UInt32}} Union{AbstractVector{Tel}, AbstractString}
+
+function unsafe_checkstring(
+                      dat::AbstractString1632,
                       pos = start(dat),
                       endpos = endof(dat)
                       ;
@@ -184,7 +186,7 @@ function unsafe_checkstring{T <: Union{Vector{UInt16}, Vector{UInt32}, AbstractS
                 ch, pos = next(dat, pos)
                 !is_surrogate_trail(ch) && throw(UnicodeError(UTF_ERR_NOT_TRAIL, pos, ch))
                 num4byte += 1
-                if T != Vector{UInt16}
+                if !(typeof(dat) <: AbstractVector{UInt16})
                     !accept_surrogates && throw(UnicodeError(UTF_ERR_SURROGATE, pos, ch))
                     flags |= UTF_SURROGATE
                 end
