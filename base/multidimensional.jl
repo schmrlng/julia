@@ -173,6 +173,17 @@ end  # IteratorsMD
 
 using .IteratorsMD
 
+# Bounds-checking with CartesianIndex
+@inline function checkbounds(::Type{Bool}, ::Tuple{}, I1::CartesianIndex)
+    checkbounds(Bool, (), I1.I...)
+end
+@inline function checkbounds(::Type{Bool}, sz::Tuple{}, I1::CartesianIndex, I...)
+    checkbounds(Bool, (), I1.I..., I...)
+end
+@inline function checkbounds(::Type{Bool}, sz::Dims, I1::CartesianIndex, I...)
+    checkbounds(Bool, sz, I1.I..., I...)
+end
+
 # Recursively compute the lengths of a list of indices, without dropping scalars
 # These need to be inlined for more than 3 indexes
 index_lengths(A::AbstractArray, I::Colon) = (length(A),)

@@ -143,6 +143,11 @@ function checkbounds(::Type{Bool}, sz::Integer, I::AbstractArray)
     end
     b
 end
+checkbounds(::Type{Bool}, sz::Tuple{}, i) = checkbounds(Bool, 1, i)
+function checkbounds(::Type{Bool}, sz::Tuple{}, i, I...)
+    @_inline_meta
+    checkbounds(Bool, 1, i) & checkbounds(Bool, (), I...)
+end
 # Prevent allocation of a GC frame by hiding the BoundsError in a noinline function
 throw_boundserror(A, I) = (@_noinline_meta; throw(BoundsError(A, I)))
 
@@ -152,39 +157,19 @@ checkbounds(A::AbstractArray, I...) = (@_inline_meta; _internal_checkbounds(A, I
 # _checkbounds previously that meant something different.
 _internal_checkbounds(A::AbstractArray, I::AbstractArray{Bool}) = size(A) == size(I) || throw_boundserror(A, I)
 _internal_checkbounds(A::AbstractArray, I::AbstractVector{Bool}) = length(A) == length(I) || throw_boundserror(A, I)
-_internal_checkbounds(A::AbstractArray, I) = (@_inline_meta; checkbounds(Bool, length(A), I) || throw_boundserror(A, I))
-function _internal_checkbounds(A::AbstractMatrix, I, J)
+function _internal_checkbounds(A::AbstractArray, I...)
     @_inline_meta
-    (checkbounds(Bool, size(A,1), I) && checkbounds(Bool, size(A,2), J)) ||
-        throw_boundserror(A, (I, J))
-end
-function _internal_checkbounds(A::AbstractArray, I, J)
-    @_inline_meta
-    (checkbounds(Bool, size(A,1), I) && checkbounds(Bool, trailingsize(A,Val{2}), J)) ||
-        throw_boundserror(A, (I, J))
-end
-@generated function _internal_checkbounds(A::AbstractArray, I...)
-    meta = Expr(:meta, :inline)
-    N = length(I)
-    Isplat = [:(I[$d]) for d=1:N]
-    error = :(throw_boundserror(A, tuple($(Isplat...))))
-    args = Expr[:(checkbounds(Bool, size(A,$dim), I[$dim]) || $error) for dim in 1:N-1]
-    push!(args, :(checkbounds(Bool, trailingsize(A,Val{$N}), I[$N]) || $error))
-    Expr(:block, meta, args...)
+    checkbounds(Bool, size(A), I...) || throw_boundserror(A, I)
 end
 
 ## Bounds-checking without errors ##
-function checkbounds(::Type{Bool}, sz::Dims, I...)
-    n = length(I)
-    for dim = 1:(n-1)
-        checkbounds(Bool, sz[dim], I[dim]) || return false
-    end
-    s = sz[n]
-    for i = n+1:length(sz)
-        s *= sz[i]
-    end
-    checkbounds(Bool, s, I[n])
+function checkbounds{N}(::Type{Bool}, sz::NTuple{N,Integer}, I1, I...)
+    @_inline_meta
+    checkbounds(Bool, sz[1], I1) || return false
+    checkbounds(Bool, tail(sz), I...)
 end
+checkbounds{N}(::Type{Bool}, sz::NTuple{N,Integer}, I1) = checkbounds(Bool, prod(sz), I1)
+checkbounds{N}(::Type{Bool}, sz::NTuple{N,Integer}) = checkbounds(Bool, sz, 1)  # for a[]
 
 ## Constructors ##
 
