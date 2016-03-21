@@ -3893,7 +3893,7 @@ end
 # `TypeVar`) without crashing
 let
     function arrayset_unknown_dim{T}(::Type{T}, n)
-        Base.arrayset(reshape(Vector{T}(1), ones(Int, n)...), 2, 1)
+        Base.arrayset(pointer_to_array(pointer(Vector{T}(1)), (ones(Int, n)...)), 2, 1)
     end
     arrayset_unknown_dim(Any, 1)
     arrayset_unknown_dim(Any, 2)
