@@ -354,3 +354,5 @@ end
 
 utf8(p::Ptr{UInt8}) = String(bytestring(p))
 utf8(p::Ptr{UInt8}, len::Integer) = utf8(pointer_to_array(p, len))
+
+Base.convert(::Type{Vector{UInt8}}, s::String) = copy(s.data)
