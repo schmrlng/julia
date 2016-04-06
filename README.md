@@ -425,7 +425,7 @@ others such as Textmate, Sublime Text, Notepad++, and Kate, are in
 Two major IDEs are supported for Julia: [Juno](http://junolab.org/),
 which is based on [Atom](https://atom.io/), and
 [JuliaDT](https://github.com/JuliaComputing/JuliaDT), which is an
-Eclipse plugin. A [Jupyter](http://jupyter.org/) notebooks interface
+[Eclipse](http://eclipse.org) plugin. A [Jupyter](http://jupyter.org/) notebooks interface
 is available through
 [IJulia](https://github.com/JuliaLang/IJulia.jl). The
 [Sublime-IJulia](https://github.com/quinnj/Sublime-IJulia) plugin
